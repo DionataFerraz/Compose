@@ -13,12 +13,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import br.com.dionataferraz.compose.ui.theme.ComposeTutorialTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MessageCard(Message("Dionata", "Jetpack Compose"))
+            ComposeTutorialTheme {
+                MessageCard(Message("Dionata", "Jetpack Compose"))
+            }
         }
     }
 }
@@ -50,7 +53,9 @@ fun MessageCard(msg: Message) {
 @Preview
 @Composable
 fun PreviewMessageCard() {
-    MessageCard(
-        msg = Message("Dionata", "Hey, take a look at Jetpack Compose, it's great!")
-    )
+    ComposeTutorialTheme {
+        MessageCard(
+            msg = Message("Dionata", "Hey, take a look at Jetpack Compose, it's great!")
+        )
+    }
 }
