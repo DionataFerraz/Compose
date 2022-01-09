@@ -2,6 +2,8 @@ package br.com.dionataferraz.compose
 
 import android.content.res.Configuration
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.animateColorAsState
@@ -17,23 +19,34 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.MutableLiveData
 import br.com.dionataferraz.compose.ui.theme.ComposeTutorialTheme
 
 // Link to tutorial:
 // https://developer.android.com/jetpack/compose/tutorial?authuser=1&continue=https%3A%2F%2Fdeveloper.android.com%2Fcourses%2Fpathways%2Fcompose%3Fauthuser%3D1%23article-https%3A%2F%2Fdeveloper.android.com%2Fjetpack%2Fcompose%2Ftutorial
+val listMessages:MutableLiveData<List<Message>> =MutableLiveData<List<Message>>()
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             ComposeTutorialTheme {
-                Conversation(SampleData.conversationSample)
+                Handler(Looper.getMainLooper()).postDelayed(
+                    {
+                       listMessages.postValue(SampleData.conversationSample)
+                    },
+                    5000 // value in milliseconds
+                )
+                val messages by listMessages.observeAsState()
+                Conversation(messages)
             }
         }
     }
@@ -78,7 +91,9 @@ fun MessageCard(msg: Message) {
                 // surfaceColor color will be changing gradually from primary to surface
                 color = surfaceColor,
                 // animateContentSize will change the Surface size gradually
-                modifier = Modifier.animateContentSize().padding(1.dp)
+                modifier = Modifier
+                    .animateContentSize()
+                    .padding(1.dp)
             ) {
                 Text(
                     text = msg.body,
@@ -110,10 +125,12 @@ fun PreviewMessageCard() {
 }
 
 @Composable
-fun Conversation(messages: List<Message>) {
+fun Conversation(messages: List<Message>?) {
     LazyColumn {
-        items(messages) { message ->
-            MessageCard(message)
+        messages?.run {
+            items(messages) { message ->
+                MessageCard(message)
+            }
         }
     }
 }
